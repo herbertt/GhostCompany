@@ -62,13 +62,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(new OnMarkerListenerShowEmpresa());
         mMap.setOnInfoWindowClickListener(new OnInfoWindowListenerShowEmpresa());
-
+    
     }
 
     private void adicionarMarcadores() {
 //        TODO definir que quando tiver empresas, vai setar um ponteiro naquela posição
         LatLng empresa = new LatLng(-7.1218496, -34.8427769);
-        mMap.addMarker(new MarkerOptions().position(empresa).title("Marcador Teste"))
+        mMap.addMarker(new MarkerOptions().position(empresa).title("Marcador teste"))
                 .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_map_marker));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(empresa));
