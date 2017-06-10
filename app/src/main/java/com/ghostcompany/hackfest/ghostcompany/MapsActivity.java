@@ -62,7 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(new OnMarkerListenerShowEmpresa());
         mMap.setOnInfoWindowClickListener(new OnInfoWindowListenerShowEmpresa());
-    
+
     }
 
     private void adicionarMarcadores() {
