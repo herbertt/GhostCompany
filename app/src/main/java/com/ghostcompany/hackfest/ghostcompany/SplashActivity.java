@@ -25,13 +25,13 @@ public class SplashActivity extends AppCompatActivity {
 
                 Log.i("SPLASH", "Run() timer splash screen");
 
+                Intent intent = new Intent(SplashActivity.this, MapsActivity.class);
+                startActivity(intent);
+
+                finish();
             }
         }, 2000);
 
-        Intent intent = new Intent(SplashActivity.this, MapsActivity.class);
-        startActivity(intent);
-
-        finish();
 
     }
 }

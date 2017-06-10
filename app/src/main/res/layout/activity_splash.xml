@@ -10,10 +10,11 @@
     tools:context="com.ghostcompany.hackfest.ghostcompany.SplashActivity"
     android:gravity="center"
     >
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/common_google_signin_btn_text_dark"
+        android:src="@mipmap/ic_launcher"
         />
 
 </RelativeLayout>

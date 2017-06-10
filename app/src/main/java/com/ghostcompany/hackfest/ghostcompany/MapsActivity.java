@@ -12,6 +12,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -48,6 +50,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        configurarMapa();
+
 //        TODO enquanto tiver empresas,
         adicionarMarcadores();
 
@@ -64,8 +68,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void adicionarMarcadores() {
 //        TODO definir que quando tiver empresas, vai setar um ponteiro naquela posição
         LatLng empresa = new LatLng(-7.1218496, -34.8427769);
-        mMap.addMarker(new MarkerOptions().position(empresa).title("Marcador Teste"));
+        mMap.addMarker(new MarkerOptions().position(empresa).title("Marcador Teste"))
+                .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_map_marker));
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(empresa));
+    }
+
+    private void configurarMapa(){
+        mMap.setMinZoomPreference(15.0f);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        }
     }
 
 
