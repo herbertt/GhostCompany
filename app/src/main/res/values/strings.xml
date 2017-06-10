@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GhostCompany</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
