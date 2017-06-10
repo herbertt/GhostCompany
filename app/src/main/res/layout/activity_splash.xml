@@ -7,6 +7,13 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.ghostcompany.hackfest.ghostcompany.MainActivity">
+    tools:context="com.ghostcompany.hackfest.ghostcompany.SplashActivity"
+    android:gravity="center"
+    >
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/common_google_signin_btn_text_dark"
+        />
 
 </RelativeLayout>

@@ -1,7 +1,6 @@
 package com.ghostcompany.hackfest.ghostcompany;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -17,9 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.Serializable;
-
-public class MapsEmpresasActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
@@ -28,7 +25,7 @@ public class MapsEmpresasActivity extends FragmentActivity implements OnMapReady
         super.onCreate(savedInstanceState);
 
         // Set view as the XML defined
-        setContentView(R.layout.activity_maps_empresas);
+        setContentView(R.layout.activity_maps);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -86,7 +83,7 @@ public class MapsEmpresasActivity extends FragmentActivity implements OnMapReady
     private class OnInfoWindowListenerShowEmpresa implements GoogleMap.OnInfoWindowClickListener {
         @Override
         public void onInfoWindowClick(Marker marker) {
-            Intent it = new Intent(MapsEmpresasActivity.this, MainActivity.class);
+            Intent it = new Intent(MapsActivity.this, MainActivity.class);
             startActivity(it);
         }
     }
