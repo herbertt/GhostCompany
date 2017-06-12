@@ -1,4 +1,4 @@
-package util;
+package com.ghostcompany.hackfest.ghostcompany.models;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ public class Entity {
 
 	public Entity() {
 		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getType() {

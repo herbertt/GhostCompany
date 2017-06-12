@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Gasparzinho.iml" filepath="$PROJECT_DIR$/Gasparzinho.iml" />
       <module fileurl="file://$PROJECT_DIR$/GhostCompany.iml" filepath="$PROJECT_DIR$/GhostCompany.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HerbertGhostCompany.iml" filepath="$PROJECT_DIR$/HerbertGhostCompany.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mysql-connector-java-5.1.42-bin/mysql-connector-java-5.1.42-bin.iml" filepath="$PROJECT_DIR$/mysql-connector-java-5.1.42-bin/mysql-connector-java-5.1.42-bin.iml" />
     </modules>
   </component>
 </project>

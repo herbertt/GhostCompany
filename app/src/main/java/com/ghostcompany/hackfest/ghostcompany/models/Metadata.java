@@ -1,21 +1,15 @@
-package util;
+package com.ghostcompany.hackfest.ghostcompany.models;
 
-import java.util.List;
+public class Metadata {
+	private String name;
+	private String type;
+	private String value;
 
-public class Attributes {
-
-	String name;
-	String type;
-	String value;
-
-	public Attributes(String name, String type, String value) {
+	public Metadata(String name, String type, String value) {
 		super();
-		this.setName(name);
-		this.setType(type);
-		this.setValue(value);
-	}
-
-	public Attributes() {
+		this.name = name;
+		this.type = type;
+		this.value = value;
 	}
 
 	public String getName() {
@@ -41,5 +35,4 @@ public class Attributes {
 	public void setValue(String value) {
 		this.value = value;
 	}
-
 }
