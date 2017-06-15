@@ -20,7 +20,7 @@ Em caso de dúvidas, entrar em contato com <b>Herbertt Diniz</b> (https://github
 
 
 
-### BUILD SETUP
+## BUILD SETUP
 
 Gradle (API Android):
 
