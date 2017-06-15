@@ -8,7 +8,7 @@ BUILD SETUP
 
 Gradle:
 
-//Adicionar compiles
+// Compile:
 
 compile 'com.android.support:appcompat-v7:23.4.0'
 compile 'com.google.android.gms:play-services:8.4.0'
