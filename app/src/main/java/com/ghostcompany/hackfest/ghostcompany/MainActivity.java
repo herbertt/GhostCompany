@@ -37,9 +37,13 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent it = getIntent();
-        Empresa emp = (Empresa) it.getSerializableExtra("obj");
+        Empresa emp = new Empresa();//(Empresa) it.getSerializableExtra("obj");
 
-        tvTitulo = (TextView) findViewById(R.id.tvMainEmpresaTitulo);
+        emp.setTitle("Empresa");
+        emp.setEmpresaCode(Integer.valueOf("1234567"));
+
+      //  tvTitulo = (TextView) findViewById(R.id.);
+        tvEmpresaTitulo = (TextView) findViewById(R.id.tvMainEmpresaTitulo);
         tvCnpj = (TextView) findViewById(R.id.tvMainEmpresaCnpj);
 
 //        sliderImages = (SliderLayout) findViewById(R.id.slider);
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         btFoto = (Button) findViewById(R.id.btMainEmpresaTirarFoto);
         btFoto.setOnClickListener(new tirarFotoIntent());
 
-//        configurarSliderImages();
+//        configurarSliderImages();d
 
         setLayouts(emp);
 
@@ -102,9 +106,9 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
     public void onPageScrollStateChanged(int state) {}
 
     public void setLayouts(Empresa e) {
-        tvTitulo.setText(e.getTitle());
-        tvEmpresaTitulo.setText(e.getTitle());
-        tvCnpj.setText(e.getEmpresaCode());
+        //tvTitulo.setText("Empresaa");
+        tvEmpresaTitulo.setText("Empresaa");
+        tvCnpj.setText("12234567");
     }
 
 
