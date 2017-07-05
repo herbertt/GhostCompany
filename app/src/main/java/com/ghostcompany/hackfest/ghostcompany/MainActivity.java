@@ -5,8 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,6 +33,10 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
     private TextView tvTitulo, tvCnpj, tvEmpresaTitulo ;
     private static final int TIRAR_FOTO = 1001;
     private ImageView ivSlider;
+
+    private ActionBarDrawerToggle mDrawerToggle;
+    public boolean threadsAlive = false;
+    private DrawerLayout mDrawerLayout;
 
     public MainActivity() {
     }
@@ -85,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
     @Override
     protected void onStop() {
         // To prevent a memory leak on rotation, make sure to call stopAutoCycle() on the slider before activity or fragment is destroyed
-        sliderImages.stopAutoCycle();
+       // sliderImages.stopAutoCycle();
         super.onStop();
     }
 
@@ -157,4 +166,34 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         }
         */
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_activity_actions, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.map_action_settings:
+                getMapActivity();
+                return true;
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void getMapActivity(){
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
+
 }

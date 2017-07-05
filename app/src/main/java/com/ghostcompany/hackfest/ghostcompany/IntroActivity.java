@@ -20,12 +20,14 @@ public class IntroActivity extends AppCompatActivity {
             public void run() {
                 finish();
 
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
 
             }
         }, 2000);
 
     }
+
+
 
 }
