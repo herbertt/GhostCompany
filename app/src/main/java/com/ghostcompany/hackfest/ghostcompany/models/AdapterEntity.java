@@ -70,7 +70,8 @@ public class AdapterEntity {
                 case "title":
                     emp.setTitle(att.getValue());
                     break;
-                case "GPSCoord":
+              //  case "GPSCoord":
+                case "position":
                     String[] tokensVal = att.getValue().split(",");
                     emp.setLat(tokensVal[0].trim());
                     emp.setLng(tokensVal[1].trim());
@@ -89,11 +90,34 @@ public class AdapterEntity {
                     u.setId(Long.parseLong(att.getValue()));
                     o.setUser(u);
                     break;*/
-                case "occurrenceCode":
+                case "empresaCode":
                     emp.setEmpresaCode((int)Long.parseLong(att.getValue()));
             }
 
         }
         return emp;
     }
+/*
+    public static String toJsonEmpresa(Entity entity) throws ParseException {
+
+        List<Attributes> attributes = new ArrayList<Attributes>();
+        attributes.add(new Attributes("title", "String", "setar aqui o valor do Titulo", null));
+        List<Metadata> metadatas = new ArrayList<Metadata>();
+        metadatas.add(new Metadata("location", "String", "WGS84"));
+        attributes.add(new Attributes("GPSCoord","coords", "setar aqui o valor do Latitude" + ", " + "setar aqui o valor do Longitude", metadatas));
+        attributes.add(new Attributes("endereco", "String", "setar aqui o valor do Endereco", null));
+        attributes.add(new Attributes("dataOcorrencia", "String",AdapterEntity.df.format(Calendar.getInstance().getTime()),null));
+        attributes.add(new Attributes("userId", "String", "1",null));
+        attributes.add(new Attributes("empresaCode", "String", "setar aqui o valor do CNPJ",null));
+
+        entity.setType("Empresa");
+        entity.setId("setar aqui o valor do ID");
+        entity.setAttributes(attributes);
+
+        Gson gson = new Gson();
+       return gson.toJson(entity);
+
+    }
+
+    */
 }

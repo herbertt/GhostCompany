@@ -1,3 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- The ActionBar displayed at the top
+    <include
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" /> -->
+
+<RelativeLayout
+        android:id="@+id/layout_map_activity"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#fff"
+        android:orientation="vertical">
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,3 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ghostcompany.hackfest.ghostcompany.MapsActivity" />
+
+
+</RelativeLayout>
+</LinearLayout>

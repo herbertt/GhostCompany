@@ -6,7 +6,6 @@ package com.ghostcompany.hackfest.ghostcompany.Async;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.ghostcompany.hackfest.ghostcompany.models.AdapterEntity;
 import com.ghostcompany.hackfest.ghostcompany.models.Empresa;
@@ -35,6 +34,7 @@ public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
 
     private Context contexto;
     public AsyncGetEmpresas(Context ctx) {
+
         this.contexto = ctx;
     }
 
@@ -59,7 +59,7 @@ public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
     protected void onPostExecute(List<Empresa> empresas) {
         Log.v("AsyncGetEmpresas", "Retorno do servidor");
         super.onPostExecute(empresas);
-        Toast.makeText(contexto, "teste", Toast.LENGTH_LONG).show();
+     //   Toast.makeText(contexto, "teste", Toast.LENGTH_LONG).show();
 
 
         ((OnGetEmpresaCompletedCallback) contexto).onGetEmpresaCompleted(empresas);
@@ -75,7 +75,7 @@ public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
 
 
         String uri = "http://130.206.119.206:1026/v1/queryContext?limit=500&details=on";
-        String getAll = "{\"entities\": [{\"type\": \"Ocurrence\",\"isPattern\": \"true\",\"id\": \".*\"}]}";
+        String getAll = "{\"entities\": [{\"type\": \"Empresa\",\"isPattern\": \"true\",\"id\": \".*\"}]}";
         OkHttpClient client = new OkHttpClient();
         try
         {

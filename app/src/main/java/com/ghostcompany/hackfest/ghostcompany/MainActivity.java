@@ -1,6 +1,7 @@
 package com.ghostcompany.hackfest.ghostcompany;
 
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,14 +23,21 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.DefaultSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
+import com.ghostcompany.hackfest.ghostcompany.Async.AsyncGetEmpresasProximas;
+import com.ghostcompany.hackfest.ghostcompany.models.AdapterEntity;
+import com.ghostcompany.hackfest.ghostcompany.models.Attributes;
 import com.ghostcompany.hackfest.ghostcompany.models.Empresa;
+import com.ghostcompany.hackfest.ghostcompany.models.Entity;
+import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaProximaCompletedCallback;
+import com.google.android.gms.location.LocationListener;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener{
+public class MainActivity extends AppCompatActivity implements OnGetEmpresaProximaCompletedCallback, LocationListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener{
     private SliderLayout sliderImages;
-    private Button btFoto;
+    private Button btFoto, btnYes, btnNo;
     private TextView tvTitulo, tvCnpj, tvEmpresaTitulo ;
     private static final int TIRAR_FOTO = 1001;
     private ImageView ivSlider;
@@ -37,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
     private ActionBarDrawerToggle mDrawerToggle;
     public boolean threadsAlive = false;
     private DrawerLayout mDrawerLayout;
+
+    private String strLat = "";
+    private String strLng = "";
 
     public MainActivity() {
     }
@@ -48,22 +59,34 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         Intent it = getIntent();
         Empresa emp = new Empresa();//(Empresa) it.getSerializableExtra("obj");
 
-        emp.setTitle("Empresa");
-        emp.setEmpresaCode(Integer.valueOf("1234567"));
 
-      //  tvTitulo = (TextView) findViewById(R.id.);
         tvEmpresaTitulo = (TextView) findViewById(R.id.tvMainEmpresaTitulo);
+        tvEmpresaTitulo.setText("Investigando...");
+        //tvEmpresaTitulo.setVisibility(View.INVISIBLE);
         tvCnpj = (TextView) findViewById(R.id.tvMainEmpresaCnpj);
+        tvCnpj.setText("Empresas próximas.");
+ //       tvCnpj.setVisibility(View.INVISIBLE);
 
 //        sliderImages = (SliderLayout) findViewById(R.id.slider);
         ivSlider = (ImageView) findViewById(R.id.ivSlider);
 
         btFoto = (Button) findViewById(R.id.btMainEmpresaTirarFoto);
         btFoto.setOnClickListener(new tirarFotoIntent());
+        btFoto.setVisibility(View.INVISIBLE);
+
+        btnYes = (Button) findViewById(R.id.button);
+        btnYes.setVisibility(View.INVISIBLE);
+        btnNo = (Button) findViewById(R.id.button2);
+        btnNo.setVisibility(View.INVISIBLE);
 
 //        configurarSliderImages();d
 
-        setLayouts(emp);
+//        setLayouts(emp);
+
+        //AsyncGetEmpresas exec = new AsyncGetEmpresas(MainActivity.this);
+        //exec.execute();
+
+
 
     }
 
@@ -118,6 +141,96 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         //tvTitulo.setText("Empresaa");
         tvEmpresaTitulo.setText("Empresaa");
         tvCnpj.setText("12234567");
+
+    }
+
+    @Override
+    public void onGetEmpresaCompleted(String result) throws Exception {
+           // get string with company close 30m
+
+
+        if (!result.contains("No context element found") && !result.equals("")) {
+            String distance = getDistance(result);
+
+            //Ocorrencia occ = getTipoOcorrencia(retorno);
+            //String title = occ.getTitle();
+            /*
+            if (distance != null && Double.valueOf(distance) <= 30) {
+
+                setOccurenceCard(occ, distance);
+
+                if (doVoiceAlert) {
+                    atual = System.nanoTime();
+                    if ((Double.parseDouble(distance) <= 30.0)) {
+                        if (first) {
+                            anterior = atual;
+                            if(threadsAlive) {
+                                notificacaoVoz(title, distance);
+                            }
+                            first = false;
+                        } else if (atual - anterior > 30000000000.0f) {
+                            if(threadsAlive) {
+                                notificacaoVoz(title, distance);
+                            }
+                            anterior = atual;
+                        }
+                    }
+                }
+
+            } */
+
+            Log.v("DIST", distance);
+        } else {
+            /*
+            txtMensagem.setText("Nenhum alerta");
+            TextView textAlertDetailsView = (TextView) findViewById(R.id.alert_details);
+            textAlertDetailsView.setText("");
+            ImageView iconWeather = (ImageView) findViewById(R.id.alert_img);
+            iconWeather.setImageResource(R.drawable.no_alert);
+            setarCorDeFundo(R.color.branco);
+            setOccurenceCardTextColor(R.color.branco);
+            */
+        }
+
+    }
+
+    public String getDistance(String result) throws Exception {
+        List<Entity> listEntity = AdapterEntity.parseListEntity(result);
+        double minDistance = 0;
+        double distance = 0;
+        boolean isFirst = true;
+        for (Entity entity : listEntity) {
+            for (Attributes att : entity.getAttributes()) {
+                if (att.getName().equalsIgnoreCase("GPSCoord")) {
+                    String[] tokensVal = att.getValue().split(",");
+                    distance = Util.distance(tokensVal[0].trim(), tokensVal[1].trim(), strLat, strLng, 'M');
+                    if (isFirst) {
+                        minDistance = distance;
+                        isFirst = false;
+                    } else {
+                        if (minDistance < distance) {
+                            minDistance = distance;
+                        }
+                    }
+                }
+            }
+        }
+        return String.valueOf(minDistance);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        setStrLat(String.valueOf(location.getLatitude()));
+        setStrLng(String.valueOf(location.getLongitude()));
+        String[] myLatLngTaskParams = {strLat,strLng};
+        try {
+            AsyncGetEmpresasProximas asyncGetEmpresasProximas = new AsyncGetEmpresasProximas(MainActivity.this);
+            asyncGetEmpresasProximas.execute(myLatLngTaskParams);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -195,5 +308,12 @@ public class MainActivity extends AppCompatActivity implements BaseSliderView.On
         startActivity(intent);
     }
 
+    public void setStrLat(String latitudeString) {
+        this.strLat = latitudeString;
+    }
+
+    public void setStrLng(String longitudeString) {
+        this.strLng = longitudeString;
+    }
 
 }
