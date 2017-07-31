@@ -1,16 +1,13 @@
 package com.ghostcompany.hackfest.ghostcompany.Async;
 
-/**
- * Created by helicoptero on 11/06/2017.
- */
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.ghostcompany.hackfest.ghostcompany.models.AdapterEntity;
-import com.ghostcompany.hackfest.ghostcompany.models.Empresa;
 import com.ghostcompany.hackfest.ghostcompany.models.Entity;
-import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaCompletedCallback;
+import com.ghostcompany.hackfest.ghostcompany.models.Informe;
+import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaInfoCallback;
 import com.google.gson.Gson;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -20,53 +17,51 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Created by Rabbit on 7/22/2017.
+ */
 
+public class AsyncGetInform extends AsyncTask<String, Void, List<Informe> > {
 
-public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
-
-    private HashMap<String, String> markers; // marcadores das empresas
-    public static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
-
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private Context contexto;
-    public AsyncGetEmpresas(Context ctx) {
+
+    public AsyncGetInform(Context ctx) {
 
         this.contexto = ctx;
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-    @Override
-    protected List<Empresa> doInBackground(String... params) {
+    protected List<Informe> doInBackground(String... params) {
 
         try {
-            return getAllOccurrences();
+            return getAllInformes();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
 
+
+        return null;
     }
+
 
     @Override
-    protected void onPostExecute(List<Empresa> empresas) {
+    protected void onPostExecute(List<Informe> infos) {
         Log.v("AsyncGetEmpresas", "Retorno do servidor");
-        super.onPostExecute(empresas);
-     //   Toast.makeText(contexto, "teste", Toast.LENGTH_LONG).show();
+        super.onPostExecute(infos);
+        //   Toast.makeText(contexto, "teste", Toast.LENGTH_LONG).show();
 
-
-        ((OnGetEmpresaCompletedCallback) contexto).onGetEmpresaCompleted(empresas);
+        try {
+            ((OnGetEmpresaInfoCallback) contexto).onGetEmpresaInfoCompleted(infos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-
-    public List<Empresa> getAllOccurrences() throws Exception {
+    public List<Informe> getAllInformes() throws Exception {
 
 
         String result = "";
@@ -75,7 +70,7 @@ public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
 
 
         String uri = "http://130.206.119.206:1026/v1/queryContext?limit=1000&details=on";
-        String getAll = "{\"entities\": [{\"type\": \"Empresa\",\"isPattern\": \"true\",\"id\": \".*\"}]}";
+        String getAll = "{\"entities\": [{\"type\": \"Informe\",\"isPattern\": \"true\",\"id\": \".*\"}]}";
         OkHttpClient client = new OkHttpClient();
         try
         {
@@ -105,13 +100,14 @@ public class AsyncGetEmpresas extends AsyncTask <String, Void, List<Empresa> > {
         }
 
         List<Entity> contextElement = AdapterEntity.parseListEntity(result);
-        List<Empresa> empresas = new ArrayList<Empresa>();
+        List<Informe> informes = new ArrayList<Informe>();
         for (Entity entity : contextElement) {
-            empresas.add(AdapterEntity.toEmpresa(entity));
+            informes.add(AdapterEntity.toInforme(entity));
         }
 
         // TODO Auto-generated method stub
-        return empresas;
+        return informes;
     }
+
 
 }

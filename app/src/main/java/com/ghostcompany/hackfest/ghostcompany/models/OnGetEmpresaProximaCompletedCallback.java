@@ -5,5 +5,5 @@ package com.ghostcompany.hackfest.ghostcompany.models;
  */
 public interface OnGetEmpresaProximaCompletedCallback {
 
-    void onGetEmpresaCompleted(String s) throws Exception;
+    void onGetEmpresaProximaCompleted(String s) throws Exception;
 }

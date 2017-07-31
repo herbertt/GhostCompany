@@ -39,9 +39,8 @@
         android:src="@mipmap/detective" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_width="383dp"
+        android:layout_height="241dp"
         android:orientation="vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
@@ -65,47 +64,43 @@
             android:id="@+id/tvMainEmpresaCnpj"
             android:textSize="16sp"
             android:text="00392993840302"
-            android:layout_weight="0.80"
+            android:layout_weight="0.22"
             />
 
-
+        <TextView
+            android:id="@+id/tvMainEmpresaEnderecoj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.22"
+            android:text=""
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button"
-                android:layout_width="wrap_content"
+                android:layout_width="171dp"
                 android:layout_height="wrap_content"
-                android:text="Existe"
-                android:layout_weight="1"
-                />
+                android:text="Existe" />
 
             <Button
                 android:id="@+id/button2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Não existe"
-                android:textColor="@color/colorAccent"
                 android:layout_weight="1"
-                />
+                android:text="Não existe"
+                android:textColor="@color/colorAccent" />
 
         </LinearLayout>
 
 
     </LinearLayout>
 
-x
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tirar Foto"
-        android:id="@+id/btMainEmpresaTirarFoto"
-        />
+    x
 </LinearLayout>
 
 

@@ -70,11 +70,15 @@ public class AdapterEntity {
                 case "title":
                     emp.setTitle(att.getValue());
                     break;
-              //  case "GPSCoord":
-                case "position":
+                case "GPSCoord":
                     String[] tokensVal = att.getValue().split(",");
                     emp.setLat(tokensVal[0].trim());
                     emp.setLng(tokensVal[1].trim());
+                    break;
+                case "position":
+                    String[] tokensVal2 = att.getValue().split(",");
+                    emp.setLat(tokensVal2[0].trim());
+                    emp.setLng(tokensVal2[1].trim());
                     break;
                 case "endereco":
                     emp.setEndereco(att.getValue());
@@ -97,27 +101,25 @@ public class AdapterEntity {
         }
         return emp;
     }
-/*
-    public static String toJsonEmpresa(Entity entity) throws ParseException {
+    public static Informe toInforme(Entity e) throws ParseException {
+        Informe info = new Informe();
+        info.setId(e.getId());
+        for (Attributes att : e.getAttributes()) {
+            switch (att.getName()) {
+                case "yesNoInfo":
+                    info.setYesNoInfo(att.getValue());
+                    break;
+                case "cnpj":
+                    info.setCnpj(att.getValue());
+                    break;
+                case "dataInforme":
+                    Date date = null;
+                    date = df.parse(att.getValue());
+                    info.setDataInforme(date.toString());
+                    break;
+            }
 
-        List<Attributes> attributes = new ArrayList<Attributes>();
-        attributes.add(new Attributes("title", "String", "setar aqui o valor do Titulo", null));
-        List<Metadata> metadatas = new ArrayList<Metadata>();
-        metadatas.add(new Metadata("location", "String", "WGS84"));
-        attributes.add(new Attributes("GPSCoord","coords", "setar aqui o valor do Latitude" + ", " + "setar aqui o valor do Longitude", metadatas));
-        attributes.add(new Attributes("endereco", "String", "setar aqui o valor do Endereco", null));
-        attributes.add(new Attributes("dataOcorrencia", "String",AdapterEntity.df.format(Calendar.getInstance().getTime()),null));
-        attributes.add(new Attributes("userId", "String", "1",null));
-        attributes.add(new Attributes("empresaCode", "String", "setar aqui o valor do CNPJ",null));
-
-        entity.setType("Empresa");
-        entity.setId("setar aqui o valor do ID");
-        entity.setAttributes(attributes);
-
-        Gson gson = new Gson();
-       return gson.toJson(entity);
-
+        }
+        return info;
     }
-
-    */
 }

@@ -37,13 +37,15 @@ public class AsyncGetEmpresasProximas extends AsyncTask<String, Void, String > {
     protected String doInBackground(String... params) {
         latitudeString = params[0];
         longitudeString = params[1];
+
         try {
             return requestNearCompany();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
 
+
+        return null;
     }
 
 
@@ -54,7 +56,11 @@ public class AsyncGetEmpresasProximas extends AsyncTask<String, Void, String > {
         //   Toast.makeText(contexto, "teste", Toast.LENGTH_LONG).show();
 
 
-        ((OnGetEmpresaProximaCompletedCallback) contexto).onGetEmpresaCompleted(s);
+        try {
+            ((OnGetEmpresaProximaCompletedCallback) contexto).onGetEmpresaProximaCompleted(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String requestNearCompany() throws Exception {
@@ -66,7 +72,7 @@ public class AsyncGetEmpresasProximas extends AsyncTask<String, Void, String > {
         BufferedReader rd;
         try {
             String uri = "http://130.206.119.206:1026/v1/queryContext";
-            String getAll = "{\"entities\": [{\"type\": \"Ocurrence\",\"isPattern\": \"true\",\"id\": \".*\"}],\"restriction\": " +
+            String getAll = "{\"entities\": [{\"type\": \"Empresa\",\"isPattern\": \"true\",\"id\": \".*\"}],\"restriction\": " +
                     "{\"scopes\": [{\"type\" : \"FIWARE::Location\",\"value\" : {\"circle\": {\"centerLatitude\": \"" +
                     latitudeString +"\",\"centerLongitude\": \"" +longitudeString +"\",\"radius\": \"30\"}}}]}}";
             OkHttpClient client = new OkHttpClient();

@@ -3,6 +3,8 @@ package com.ghostcompany.hackfest.ghostcompany;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -11,8 +13,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ghostcompany.hackfest.ghostcompany.Async.AsyncGetEmpresas;
+import com.ghostcompany.hackfest.ghostcompany.Async.AsyncGetInform;
 import com.ghostcompany.hackfest.ghostcompany.models.Empresa;
+import com.ghostcompany.hackfest.ghostcompany.models.Informe;
 import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaCompletedCallback;
+import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaInfoCallback;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -21,13 +27,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, OnGetEmpresaCompletedCallback{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, OnGetEmpresaInfoCallback,
+        OnGetEmpresaCompletedCallback{
     private Empresa empresa;
     private GoogleMap mMap;
     private HashMap<String, String> markers; // marcadores das empresas
+    private List<Informe> listInfos = new ArrayList<Informe>();
 
 
 
@@ -42,7 +51,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Pegar o mapa para ser exibido
         mapFragment.getMapAsync(this);
 
+        try {
+            AsyncGetInform asyncGetInform = new AsyncGetInform(MapsActivity.this);
+            asyncGetInform.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         markers = new HashMap<String,String>();
+
     }
 
     @Override
@@ -85,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         mMap.setOnMarkerClickListener(new OnMarkerListenerShowEmpresa());
-       // mMap.setOnInfoWindowClickListener(new OnInfoWindowListenerShowEmpresa());
+        // mMap.setOnInfoWindowClickListener(new OnInfoWindowListenerShowEmpresa());
 
 
         try {
@@ -95,6 +112,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
 
+
+
     }
 
 
@@ -102,6 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.setMinZoomPreference(15.0f);
         Log.i("ZOOM", String.valueOf(mMap.getMinZoomLevel()) );
 
+        LatLng currentLatLng = new LatLng(-7.11532, -34.861);
+        this.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 6));
 
         this.mMap.setBuildingsEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -119,6 +140,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    public void onGetEmpresaInfoCompleted(List<Informe> infos) {
+
+        listInfos = infos;
+
+    }
 
 
     private class OnMarkerListenerShowEmpresa implements GoogleMap.OnMarkerClickListener{
@@ -146,7 +173,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             for (Empresa empresa : empresas) {
 
                 LatLng latLng = new LatLng(Double.parseDouble(empresa.getLat()), Double.parseDouble(empresa.getLng()));
-                Marker marker = this.addMarker(latLng, empresa.getEmpresaCode());
+                Marker marker = this.addMarker(empresa.getTitle(), latLng, empresa.getEmpresaCode());
                 markers.put(marker.getId(), String.valueOf(empresa.getIdEmpresa()));
             }
 
@@ -167,10 +194,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public Marker addMarker(LatLng latLng, int occurenceTypeID){
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Ghost Company S/A  CNPJ: "+occurenceTypeID).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_map_marker));
-        markerOptions.snippet("97% Sim 3% Não");
+    public Marker addMarker(String title,LatLng latLng, int cnpj){
+        String[] res =  getSnippetInfo(String.valueOf(cnpj));
+        Bitmap bitmap;
+        if(Integer.parseInt(res[0])>50){
+            bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.marker_alert);
+        }else {
+            bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_map_marker);
+        }
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(title+"  CNPJ: "+cnpj).icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+
+        markerOptions.snippet(res[0]+"% Sim "+res[1]+"% Não");
         return mMap.addMarker(markerOptions);
+    }
+
+    public String[] getSnippetInfo(String cnpj){
+        int total = 0;
+        int yes = 0;
+        int no = 0;
+
+        for (Informe info: listInfos) {
+            if (info.getCnpj().equals(cnpj)){
+                total++;
+                if (info.getYesNoInfo().equals("1")){
+                    yes++;
+                }else if(info.getYesNoInfo().equals("0")){
+                    no++;
+                }
+            }
+        }
+        String percYes = String.valueOf((yes*100)/total);
+        String percNo = String.valueOf((no*100)/total);
+        String[] parts = new String[2];
+        parts[0] = percYes;
+        parts[1] = percNo;
+
+        return parts;
     }
 
 

@@ -1,11 +1,16 @@
 package com.ghostcompany.hackfest.ghostcompany;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -21,26 +26,39 @@ import android.widget.Toast;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
-import com.daimajia.slider.library.SliderTypes.DefaultSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
 import com.ghostcompany.hackfest.ghostcompany.Async.AsyncGetEmpresasProximas;
+import com.ghostcompany.hackfest.ghostcompany.Async.AsyncSendInform;
 import com.ghostcompany.hackfest.ghostcompany.models.AdapterEntity;
 import com.ghostcompany.hackfest.ghostcompany.models.Attributes;
 import com.ghostcompany.hackfest.ghostcompany.models.Empresa;
 import com.ghostcompany.hackfest.ghostcompany.models.Entity;
 import com.ghostcompany.hackfest.ghostcompany.models.OnGetEmpresaProximaCompletedCallback;
+import com.ghostcompany.hackfest.ghostcompany.models.OnPostEmpresaInfoCallback;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnGetEmpresaProximaCompletedCallback, LocationListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, OnGetEmpresaProximaCompletedCallback,
+        LocationListener, BaseSliderView.OnSliderClickListener, OnPostEmpresaInfoCallback, GoogleApiClient.OnConnectionFailedListener, ViewPagerEx.OnPageChangeListener {
     private SliderLayout sliderImages;
     private Button btFoto, btnYes, btnNo;
-    private TextView tvTitulo, tvCnpj, tvEmpresaTitulo ;
+    private TextView tvEndereco, tvCnpj, tvEmpresaTitulo;
     private static final int TIRAR_FOTO = 1001;
     private ImageView ivSlider;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mLastLocation;
+    private static String ID;
+    private boolean infoSended = false;
+    private boolean isResume = false;
+    private boolean startup = false;
 
     private ActionBarDrawerToggle mDrawerToggle;
     public boolean threadsAlive = false;
@@ -48,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
 
     private String strLat = "";
     private String strLng = "";
+
+   // private GoogleMap googleMap;
+    private static final long INTERVAL = 1000 * 4;
+    private static final long FASTEST_INTERVAL = 1000 * 2;
+    private static final long SMALLEST_DISPLACEMENT = 10;
 
     public MainActivity() {
     }
@@ -58,76 +81,109 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
         setContentView(R.layout.activity_main);
         Intent it = getIntent();
         Empresa emp = new Empresa();//(Empresa) it.getSerializableExtra("obj");
-
-
         tvEmpresaTitulo = (TextView) findViewById(R.id.tvMainEmpresaTitulo);
         tvEmpresaTitulo.setText("Investigando...");
         //tvEmpresaTitulo.setVisibility(View.INVISIBLE);
         tvCnpj = (TextView) findViewById(R.id.tvMainEmpresaCnpj);
         tvCnpj.setText("Empresas próximas.");
- //       tvCnpj.setVisibility(View.INVISIBLE);
+        //       tvCnpj.setVisibility(View.INVISIBLE);
 
+        tvEndereco = (TextView) findViewById(R.id.tvMainEmpresaEnderecoj);
+        tvEndereco.setText("");
+        tvEndereco.setVisibility(View.INVISIBLE);
+        callConnection();
 //        sliderImages = (SliderLayout) findViewById(R.id.slider);
         ivSlider = (ImageView) findViewById(R.id.ivSlider);
 
-        btFoto = (Button) findViewById(R.id.btMainEmpresaTirarFoto);
-        btFoto.setOnClickListener(new tirarFotoIntent());
-        btFoto.setVisibility(View.INVISIBLE);
 
         btnYes = (Button) findViewById(R.id.button);
+        btnYes.setOnClickListener(btnYesListener);
         btnYes.setVisibility(View.INVISIBLE);
         btnNo = (Button) findViewById(R.id.button2);
+        btnNo.setOnClickListener(btnNoListener);
         btnNo.setVisibility(View.INVISIBLE);
-
-//        configurarSliderImages();d
-
-//        setLayouts(emp);
-
-        //AsyncGetEmpresas exec = new AsyncGetEmpresas(MainActivity.this);
-        //exec.execute();
-
-
-
+        ID = getDeviceUniqueID(this);
+        infoSended = false;
+        startup = true;
     }
 
-    private void configurarSliderImages() {
+    public View.OnClickListener btnYesListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
 
-        HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
+            String[] params = {ID,String.valueOf(tvCnpj.getText()),"1"};
+            // Toast.makeText(getApplicationContext(), "Lat "+strLat+" Lng "+strLng, Toast.LENGTH_SHORT).show();
+            try {
+                AsyncSendInform asyncSendInform = new AsyncSendInform(MainActivity.this);
+                asyncSendInform.execute(params);
 
-//        file_maps.put("Camera",R.drawable.add_empresa_foto);
-
-
-        for(String name : file_maps.keySet()){
-            DefaultSliderView imageSlider = new DefaultSliderView(this);
-            // initialize a SliderLayout
-
-            imageSlider.image(file_maps.get(name))
-                    .setScaleType(BaseSliderView.ScaleType.Fit);
-
-            sliderImages.addSlider(imageSlider);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+    };
+    public static String getDeviceUniqueID(Activity activity){
+        String device_unique_id = Settings.Secure.getString(activity.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        return device_unique_id;
+    }
+    public View.OnClickListener btnNoListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
 
-        sliderImages.setPresetTransformer(SliderLayout.Transformer.Default);
-        sliderImages.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-        sliderImages.setDuration(4000);
-//        sliderImages.addOnPageChangeListener(this);
+            String[] params = {ID,String.valueOf(tvCnpj.getText()),"0"};
+            // Toast.makeText(getApplicationContext(), "Lat "+strLat+" Lng "+strLng, Toast.LENGTH_SHORT).show();
+            try {
+                AsyncSendInform asyncSendInform = new AsyncSendInform(MainActivity.this);
+                asyncSendInform.execute(params);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mGoogleApiClient.disconnect();
+    }
+    private synchronized void callConnection(){
+        Log.i("LOG", "UpdateLocationActivity.callConnection()");
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addOnConnectionFailedListener(this)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+        setMainScreen();
+        isResume = true;
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            startLocationUpdate();
+        }
 
     }
 
     @Override
     protected void onStop() {
         // To prevent a memory leak on rotation, make sure to call stopAutoCycle() on the slider before activity or fragment is destroyed
-       // sliderImages.stopAutoCycle();
+        // sliderImages.stopAutoCycle();
         super.onStop();
     }
 
     @Override
     public void onSliderClick(BaseSliderView slider) {
-        Toast.makeText(this,slider.getBundle().get("extra") + "",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, slider.getBundle().get("extra") + "", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
 
     @Override
     public void onPageSelected(int position) {
@@ -135,7 +191,8 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
     }
 
     @Override
-    public void onPageScrollStateChanged(int state) {}
+    public void onPageScrollStateChanged(int state) {
+    }
 
     public void setLayouts(Empresa e) {
         //tvTitulo.setText("Empresaa");
@@ -145,53 +202,76 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
     }
 
     @Override
-    public void onGetEmpresaCompleted(String result) throws Exception {
-           // get string with company close 30m
-
-
-        if (!result.contains("No context element found") && !result.equals("")) {
+    public void onGetEmpresaProximaCompleted(String result) throws Exception {
+        // get string with company close 30m
+        if (!result.contains("No context element found") && !result.equals("")&& !infoSended) {
             String distance = getDistance(result);
+            List<Entity> listEntity = AdapterEntity.parseListEntity(result);
 
-            //Ocorrencia occ = getTipoOcorrencia(retorno);
-            //String title = occ.getTitle();
-            /*
-            if (distance != null && Double.valueOf(distance) <= 30) {
-
-                setOccurenceCard(occ, distance);
-
-                if (doVoiceAlert) {
-                    atual = System.nanoTime();
-                    if ((Double.parseDouble(distance) <= 30.0)) {
-                        if (first) {
-                            anterior = atual;
-                            if(threadsAlive) {
-                                notificacaoVoz(title, distance);
-                            }
-                            first = false;
-                        } else if (atual - anterior > 30000000000.0f) {
-                            if(threadsAlive) {
-                                notificacaoVoz(title, distance);
-                            }
-                            anterior = atual;
-                        }
+            for (Entity entity : listEntity) {
+                for (Attributes att : entity.getAttributes()) {
+                    if (att.getName().equalsIgnoreCase("Title")) {
+                        tvEmpresaTitulo.setText(att.getValue());
+                    }
+                    if (att.getName().equalsIgnoreCase("empresaCode")) {
+                        tvCnpj.setText("CNPJ: "+att.getValue());
+                    }
+                    if (att.getName().equalsIgnoreCase("endereco")) {
+                        tvEndereco.setText("Endereco: "+att.getValue());
                     }
                 }
-
-            } */
-
-            Log.v("DIST", distance);
+            }
+            Vibrar();
+            ivSlider.setImageResource(R.mipmap.companyalert);
+            btnYes.setVisibility(View.VISIBLE);
+            btnNo.setVisibility(View.VISIBLE);
+            tvEndereco.setVisibility(View.VISIBLE);
+            Log.v("DISTANCIA", distance);
         } else {
-            /*
-            txtMensagem.setText("Nenhum alerta");
-            TextView textAlertDetailsView = (TextView) findViewById(R.id.alert_details);
-            textAlertDetailsView.setText("");
-            ImageView iconWeather = (ImageView) findViewById(R.id.alert_img);
-            iconWeather.setImageResource(R.drawable.no_alert);
-            setarCorDeFundo(R.color.branco);
-            setOccurenceCardTextColor(R.color.branco);
-            */
+            setMainScreen();
+
         }
 
+    }
+
+    public void setMainScreen(){
+        tvEmpresaTitulo.setText("Investigando...");
+        tvEndereco.setVisibility(View.INVISIBLE);
+        tvCnpj.setText("Empresas próximas.");
+        ivSlider.setImageResource(R.mipmap.detective);
+        btnYes.setVisibility(View.INVISIBLE);
+        btnNo.setVisibility(View.INVISIBLE);
+        tvEndereco.setVisibility(View.INVISIBLE);}
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.i("LOG", "UpdateLocationActivity.onConnected(" + bundle + ")");
+
+        mLastLocation = getLastLocation(); // PARA JÁ TER UMA COORDENADA PARA O UPDATE FEATURE UTILIZAR
+
+        if (mLastLocation != null) {
+            LatLng currentLatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+          //  this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16));
+        }
+
+        startLocationUpdate();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i("LOG", "UpdateLocationActivity.onConnectionSuspended(" + i + ")");
+
+    }
+
+    private Location getLastLocation(){
+        if(PermissionRequest.checkLocationPermission(this)){
+          //  googleMap.setMyLocationEnabled(true);
+        }else{
+            PermissionRequest.requestLocationPermission(this);
+        }
+        if(mGoogleApiClient!=null && mGoogleApiClient.isConnected())
+            return LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        return null;
     }
 
     public String getDistance(String result) throws Exception {
@@ -218,19 +298,62 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
         return String.valueOf(minDistance);
     }
 
+    private void startLocationUpdate(){
+        if(PermissionRequest.checkLocationPermission(this)){
+            startLocationRequest();
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }else{
+            PermissionRequest.requestLocationPermission(this);
+        }
+    }
+
+    private void startLocationRequest(){
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT); // deslocamento mínimo em metros
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    private void stopLocationUpdate(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
+
     @Override
     public void onLocationChanged(Location location) {
 
         setStrLat(String.valueOf(location.getLatitude()));
         setStrLng(String.valueOf(location.getLongitude()));
         String[] myLatLngTaskParams = {strLat,strLng};
+       // Toast.makeText(getApplicationContext(), "Lat "+strLat+" Lng "+strLng, Toast.LENGTH_SHORT).show();
         try {
-            AsyncGetEmpresasProximas asyncGetEmpresasProximas = new AsyncGetEmpresasProximas(MainActivity.this);
-            asyncGetEmpresasProximas.execute(myLatLngTaskParams);
+            if(!isResume||startup) {
+                AsyncGetEmpresasProximas asyncGetEmpresasProximas = new AsyncGetEmpresasProximas(MainActivity.this);
+                asyncGetEmpresasProximas.execute(myLatLngTaskParams);
+                infoSended = false;
+                startup = false;
+            }else{
+                isResume = false;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        Log.i("LOG", "UpdateLocationActivity.onConnectionFailed(" + connectionResult + ")");
+
+    }
+
+    @Override
+    public void onPostEmpresaInfoCompleted(String result) {
+        if(result.equals("200")){
+             infoSended = true;
+             Toast.makeText(getApplicationContext(), "Enviado com Sucesso", Toast.LENGTH_SHORT).show();
+            setMainScreen();
+        }
     }
 
 
@@ -256,30 +379,13 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
 
         }
 
-
-
-        /*
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            TextSliderView demoSlider = new TextSliderView(this);
-            demoSlider.description("Game of Thrones")
-                    .image("http://images.boomsbeat.com/data/images/full/19640/game-of-thrones-season-4-jpg.jpg")
-                    .setOnClickListener(this);
-            slider.addSlider(demoSlider);
-
-
-//        Vai checar se a origem é de "TIRAR_FOTO" e se voltou com sucesso.
-            if (requestCode == TIRAR_FOTO && resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                Bitmap imgBitmap = (Bitmap) extras.get("data");
-
-                MainActivity.this.sliderImages.addSlider(imgBitmap);
-                this.ivThumbnail.setVisibility(View.VISIBLE);
-            }
-        }
-        */
     }
-
+    private void Vibrar()
+    {
+        Vibrator rr = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        long milliseconds = 5;//'5' é o tempo em milissegundos, é basicamente o tempo de duração da vibração. portanto, quanto maior este numero, mais tempo de vibração você irá ter
+        rr.vibrate(milliseconds);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -315,5 +421,6 @@ public class MainActivity extends AppCompatActivity implements OnGetEmpresaProxi
     public void setStrLng(String longitudeString) {
         this.strLng = longitudeString;
     }
+
 
 }
