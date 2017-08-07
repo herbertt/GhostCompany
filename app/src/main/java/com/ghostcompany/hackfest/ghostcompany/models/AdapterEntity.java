@@ -95,7 +95,7 @@ public class AdapterEntity {
                     o.setUser(u);
                     break;*/
                 case "empresaCode":
-                    emp.setEmpresaCode((int)Long.parseLong(att.getValue()));
+                    emp.setEmpresaCode(att.getValue());
             }
 
         }

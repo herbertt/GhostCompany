@@ -23,7 +23,7 @@ public class Empresa implements Serializable{
 
   //  private User user;
 
-    private Integer empresaCode;
+    private String empresaCode;
 
     public Long getIdEmpresa() {
         return idEmpresa;
@@ -81,11 +81,11 @@ public class Empresa implements Serializable{
         this.endereco = endereco;
     }
 
-    public void setEmpresaCode(Integer occurenceCode) {
+    public void setEmpresaCode(String occurenceCode) {
         this.empresaCode = occurenceCode;
     }
 
-    public Integer getEmpresaCode() {
+    public String getEmpresaCode() {
         return empresaCode;
     }
 }

@@ -241,7 +241,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         ivSlider.setImageResource(R.mipmap.detective);
         btnYes.setVisibility(View.INVISIBLE);
         btnNo.setVisibility(View.INVISIBLE);
-        tvEndereco.setVisibility(View.INVISIBLE);}
+        tvEndereco.setVisibility(View.INVISIBLE);
+    }
 
     @Override
     public void onConnected(Bundle bundle) {

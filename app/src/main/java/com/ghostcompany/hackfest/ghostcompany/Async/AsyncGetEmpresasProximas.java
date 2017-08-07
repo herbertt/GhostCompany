@@ -74,7 +74,7 @@ public class AsyncGetEmpresasProximas extends AsyncTask<String, Void, String > {
             String uri = "http://130.206.119.206:1026/v1/queryContext";
             String getAll = "{\"entities\": [{\"type\": \"Empresa\",\"isPattern\": \"true\",\"id\": \".*\"}],\"restriction\": " +
                     "{\"scopes\": [{\"type\" : \"FIWARE::Location\",\"value\" : {\"circle\": {\"centerLatitude\": \"" +
-                    latitudeString +"\",\"centerLongitude\": \"" +longitudeString +"\",\"radius\": \"30\"}}}]}}";
+                    latitudeString +"\",\"centerLongitude\": \"" +longitudeString +"\",\"radius\": \"25\"}}}]}}";
             OkHttpClient client = new OkHttpClient();
             RequestBody body = RequestBody.create(JSON, getAll);
             Request request = new Request.Builder()

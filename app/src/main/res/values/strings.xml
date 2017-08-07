@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GhostCompany</string>
+    <string name="app_name">Caça-Fantasmas</string>
     <string name="title_activity_maps">Map</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_empresa">EmpresaActivity</string>

@@ -176,35 +176,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Marker marker = this.addMarker(empresa.getTitle(), latLng, empresa.getEmpresaCode());
                 markers.put(marker.getId(), String.valueOf(empresa.getIdEmpresa()));
             }
-
-            //  List<Marcador> list = new ArrayList<>();;
-            //   Iterator<Empresa> it = null;
-            //  it = occurrences.iterator();
-          /*  while (it.hasNext()) {
-                Empresa o = it.next();
-                Marcador m = new Marcador(new LatLng(Double.parseDouble(o.getLat()),Double.parseDouble(o.getLng())),
-                        OCCURRENCES[o.getEmpresaCode().intValue()],
-                        o.getEmpresaCode().intValue(),o.getIdEmpresa());
-                mClusterManager.addItem(m);
-            }*/
-            // mClusterManager.addItems(list);
-            //mClusterManager.setRenderer(new OwnIconRendered(this, this.googleMap, mClusterManager));
-
+            
         }
 
     }
 
-    public Marker addMarker(String title,LatLng latLng, int cnpj){
+    public Marker addMarker(String title,LatLng latLng, String cnpj){
         String[] res =  getSnippetInfo(String.valueOf(cnpj));
         Bitmap bitmap;
-        if(Integer.parseInt(res[0])>50){
+        if(Integer.parseInt(res[0])<=20&&Integer.parseInt(res[2])>0){
             bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.marker_alert);
         }else {
             bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_map_marker);
         }
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(title+"  CNPJ: "+cnpj).icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(title+"/"+cnpj).icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 
-        markerOptions.snippet(res[0]+"% Sim "+res[1]+"% Não");
+        markerOptions.snippet(res[0]+"%Sim  "+res[1]+"%Não");
         return mMap.addMarker(markerOptions);
     }
 
@@ -212,23 +199,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int total = 0;
         int yes = 0;
         int no = 0;
-
-        for (Informe info: listInfos) {
-            if (info.getCnpj().equals(cnpj)){
-                total++;
-                if (info.getYesNoInfo().equals("1")){
-                    yes++;
-                }else if(info.getYesNoInfo().equals("0")){
-                    no++;
+        String[] parts = new String[3];
+        parts[0] = "0";
+        parts[1] = "0";
+        parts[2] = "0";
+        if(listInfos.size()>0) {
+            for (Informe info : listInfos) {
+                if (info.getCnpj().equals(cnpj)) {
+                    total++;
+                    if (info.getYesNoInfo().equals("1")) {
+                        yes++;
+                    } else if (info.getYesNoInfo().equals("0")) {
+                        no++;
+                    }
                 }
             }
+            if(total>0) {
+                String percYes = String.valueOf((yes * 100) / total);
+                String percNo = String.valueOf((no * 100) / total);
+                parts[0] = percYes;
+                parts[1] = percNo;
+                parts[2] = String.valueOf(total);
+            }
         }
-        String percYes = String.valueOf((yes*100)/total);
-        String percNo = String.valueOf((no*100)/total);
-        String[] parts = new String[2];
-        parts[0] = percYes;
-        parts[1] = percNo;
-
         return parts;
     }
 
